@@ -71,20 +71,87 @@ y con versión
 ```
 ./push.sh 1.1
 ```
-ECS (En consola)
 
-Argumentos:
+## ECS (En consola)
+
+Resumido:
+
+- Argumentos:
 Task Definition (Fargate)
 Image: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0 # reemplazar con la imagen que subieron
 Container port: 80
-Environment variables:
-APP_ENV=prod
-APP_VERSION=1.0.0
 
-Service - Argumentos:
+- Service - Argumentos:
 Fargate
 Desired tasks: 1
 Public IP: Enabled 
 Security Group inbound:
 TCP 80 desde 0.0.0.0/0 # Abres la Public IP del task en el navegador para observar
 
+Paso a Paso:
+
+1. Ir a ECS
+- Entra a AWS Console
+- Busca ECS (Elastic Container Service)
+- Haz clic en Create cluster
+
+2. Crear Cluster (Express / Simplified)
+Selecciona:
+- Express configuration (o similar nombre simplificado)
+Luego:
+- Cluster name: ecs-demo-cluster
+- Infrastructure: AWS Fargate
+
+Click en Create y espera a que termine.
+
+3. Crear Service (Directamente desde el cluster)
+Entra al cluster recién creado.
+Haz clic en:
+- Create service
+
+4. Configurar el contenedor
+En la sección de contenedor:
+Image URI: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0
+Container name: ecs-demo
+Port: 80
+
+5. Compute configuration
+- CPU: 0.25 vCPU
+- Memory: 0.5 GB
+
+6. Networking
+- VPC: Selecciona el default (o el que ya tengas).
+- Subnets Selecciona subnets públicas (default normalmente funciona).
+- Auto-assign public IP : ENABLED (para no usar ALB)
+
+7. Security Group
+Si la UI te permite crear uno nuevo:
+Crear rule inbound:
+Type	Protocol	Port	Source
+HTTP	TCP	80	0.0.0.0/0
+Si no:
+Edita el Security Group manualmente después.
+
+8. Desired tasks
+
+Pon: 1
+
+9. Crear Service
+
+Click en Create y espera que el task pase a: Running
+
+10. Obtener la URL
+Entra al Service
+- Click en el Task
+Busca: Public IP
+Copia esa IP y abre en el navegador:
+http://PUBLIC_IP
+
+
+Existe un modo express, que crea todo pero usa un ALB e infrastructura completa que es más caro de ejecutar.
+
+Express mode:
+Image URI - Del ECR creado
+- Image: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0 # 
+Container port: 80
+Name: ecs-demo
