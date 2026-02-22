@@ -5,7 +5,7 @@ set -e
 IMAGE_NAME="ecs-demo"
 IMAGE_VERSION="${1:-1.0}"
 
-echo "🔨 Construyendo imagen..."
+echo "Construyendo imagen..."
 echo "Nombre: $IMAGE_NAME"
 echo "Versión: $IMAGE_VERSION"
 

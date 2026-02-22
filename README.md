@@ -5,7 +5,6 @@ Este repositorio contiene un proyecto simple para desplegar un contenedor minimo
 Construir imagen
 ```
 podman build -t ecs-demo:1.0 .
-
 ```
 o correr el script build.sh
 ```
