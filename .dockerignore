@@ -1,0 +1,11 @@
+.git
+.DS_Store
+.gitignore
+
+# Scripts locales
+build.sh
+run.sh
+push.sh
+
+# Otros
+README.md
