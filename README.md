@@ -71,20 +71,135 @@ y con versión
 ```
 ./push.sh 1.1
 ```
-ECS (En consola)
 
-Argumentos:
+## ECS (En consola)
+
+Resumido:
+
+- Argumentos:
 Task Definition (Fargate)
 Image: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0 # reemplazar con la imagen que subieron
 Container port: 80
-Environment variables:
-APP_ENV=prod
-APP_VERSION=1.0.0
 
-Service - Argumentos:
+- Service - Argumentos:
 Fargate
 Desired tasks: 1
 Public IP: Enabled 
 Security Group inbound:
 TCP 80 desde 0.0.0.0/0 # Abres la Public IP del task en el navegador para observar
 
+Paso a Paso:
+
+1. Ir a ECS
+- Entra a AWS Console
+- Busca ECS (Elastic Container Service)
+- Haz clic en Create cluster
+
+2. Crear Cluster (Express / Simplified)
+Selecciona:
+- Express configuration (o similar nombre simplificado)
+Luego:
+- Cluster name: ecs-demo-cluster
+- Infrastructure: AWS Fargate
+
+Click en Create y espera a que termine.
+
+3. Crear Task Definition (necesario en NO Express)
+- ECS → Task definitions → Create new task definition
+- name: ecs-demo-td
+- Selecciona:
+  - Launch type / Compatibility: Fargate
+  - os architecture: Linux/X86_64
+  - Configura “Task size”:
+    - CPU: 0.25 vCPU
+    - Memory: 0.5 GB
+  - Roles:
+    - Task execution role: ecsTaskExecutionRole (viene por default pero si no existe, créalo desde el wizard (debe incluir permisos para pull de ECR + logs).
+    - Task role: vacío.
+
+- Container definition (Add container):
+  - Container name: ecs-demo (essential container:yes)
+  - Image URI: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0
+  -  Port mappings: 80 TCP (containerPort 80)
+
+Desactivar Logging configuration: awslogs (si lo habilitas, verás logs en CloudWatch pero tiene costo)
+
+Create task definition.
+
+4. Crear Security Group - ⚠️ No usar default security group.
+Ir a: EC2 → Security Groups
+- Click en Create security group
+  - Configura:
+    - Name: ecs-demo-public-sg
+    - Description: Allow HTTP access to ECS demo
+    - VPC: default VPC (la misma del cluster)
+    - Inbound rules
+      - Agregar:
+
+| Type	| Protocol	| Port |	Source |
+| --- | --- | --- | --- |
+| HTTP |	TCP	|80|	0.0.0.0/0|
+
+Outbound rules - Dejar por default:
+All traffic - 0.0.0.0/0
+
+Click en Create security group
+
+5. Crear Service (Directamente desde el cluster, sin ALB, solo Public IP)
+Entra al cluster recién creado.ECS → Clusters → entra a ecs-demo-cluster)
+Haz clic en:
+- Create service
+- Task definition: selecciona la que creaste (la última revision)
+- Service name: ecs-demo-service
+- Environment:
+  - Launch type / Capacity provider: Fargate
+- Deployment configuration:
+  - Desired tasks: 1
+  - Deseleccionar Turn on Availability Zone rebalancing
+- Networking:
+  - default vpc
+  - default subnets
+  - default security group
+  - public ip: turned on
+Create service y espera.
+
+
+6. Validar que el Task esté “RUNNING”
+- Entra al Service → pestaña Tasks
+- Abre el Task → verifica estado RUNNING
+Busca:
+- Public IP (o “Network” → Public IP)
+
+7. Obtener la URL
+Entra al Service
+- Click en el Task
+Busca: Public IP
+Copia esa IP y abre en el navegador:
+http://PUBLIC_IP
+
+
+Existe un modo express, que crea todo pero usa un ALB e infrastructura completa que es más caro de ejecutar.
+
+Express mode:
+Image URI - Del ECR creado
+- Image: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0 # 
+Container port: 80
+Name: ecs-demo
+
+
+### Clean up
+
+### ECS
+En clusters, ver al cluster creado (ecs-demo-cluster) y selecciona en acciones, delete cluster.
+
+Confirma
+
+Para eliminar las task definitions, primero entra a las revisiones, dales deregister
+
+
+### SG
+- Elimina el security group creado tambien
+
+### ECR
+1. Ve a ecr -> repositorio y elimina las imagenes
+2. Una vez eliminadas, selecciona el repositorio en ecr -> repositorios -> delete

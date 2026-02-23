@@ -3,14 +3,14 @@
 set -e
 
 # Configuración
-IMAGE_NAME="ecs-demo-static"
+IMAGE_NAME="ecs-demo"
 IMAGE_VERSION="${1:-1.0}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 
 # Obtener Account ID automáticamente
 AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 
-ECR_REPO="$IMAGE_NAME"
+ECR_REPO="$IMAGE_NAME-static"
 ECR_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_VERSION"
 
 echo "Preparando push a ECR..."
