@@ -104,43 +104,55 @@ Luego:
 
 Click en Create y espera a que termine.
 
-3. Crear Service (Directamente desde el cluster)
-Entra al cluster recién creado.
+3. Crear Task Definition (necesario en NO Express)
+- ECS → Task definitions → Create new task definition
+- name: ecs-demo-td
+- Selecciona:
+  - Launch type / Compatibility: Fargate
+  - os architecture: Linux/X86_64
+  - Configura “Task size”:
+    - CPU: 0.25 vCPU
+    - Memory: 0.5 GB
+  - Roles:
+    - Task execution role: ecsTaskExecutionRole (viene por default pero si no existe, créalo desde el wizard (debe incluir permisos para pull de ECR + logs).
+    - Task role: vacío.
+
+- Container definition (Add container):
+  - Container name: ecs-demo (essential container:yes)
+  - Image URI: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0
+  -  Port mappings: 80 TCP (containerPort 80)
+
+Desactivar Logging configuration: awslogs (si lo habilitas, verás logs en CloudWatch pero tiene costo)
+
+Create task definition.
+
+
+4. Crear Service (Directamente desde el cluster, sin ALB, solo Public IP)
+Entra al cluster recién creado.ECS → Clusters → entra a ecs-demo-cluster)
 Haz clic en:
 - Create service
+- Task definition: selecciona la que creaste (la última revision)
+- Service name: ecs-demo-service
+- Environment:
+  - Launch type / Capacity provider: Fargate
+- Deployment configuration:
+  - Desired tasks: 1
+  - Deseleccionar Turn on Availability Zone rebalancing
+- Networking:
+  - default vpc
+  - default subnets
+  - default security group
+  - public ip: turned on
+Create service y espera.
 
-4. Configurar el contenedor
-En la sección de contenedor:
-Image URI: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0
-Container name: ecs-demo
-Port: 80
 
-5. Compute configuration
-- CPU: 0.25 vCPU
-- Memory: 0.5 GB
+5. Validar que el Task esté “RUNNING”
+- Entra al Service → pestaña Tasks
+- Abre el Task → verifica estado RUNNING
+Busca:
+- Public IP (o “Network” → Public IP)
 
-6. Networking
-- VPC: Selecciona el default (o el que ya tengas).
-- Subnets Selecciona subnets públicas (default normalmente funciona).
-- Auto-assign public IP : ENABLED (para no usar ALB)
-
-7. Security Group
-Si la UI te permite crear uno nuevo:
-Crear rule inbound:
-Type	Protocol	Port	Source
-HTTP	TCP	80	0.0.0.0/0
-Si no:
-Edita el Security Group manualmente después.
-
-8. Desired tasks
-
-Pon: 1
-
-9. Crear Service
-
-Click en Create y espera que el task pase a: Running
-
-10. Obtener la URL
+6. Obtener la URL
 Entra al Service
 - Click en el Task
 Busca: Public IP
