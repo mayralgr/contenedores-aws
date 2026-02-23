@@ -126,8 +126,26 @@ Desactivar Logging configuration: awslogs (si lo habilitas, verás logs en Cloud
 
 Create task definition.
 
+4. Crear Security Group - ⚠️ No usar default security group.
+Ir a: EC2 → Security Groups
+- Click en Create security group
+  - Configura:
+    - Name: ecs-demo-public-sg
+    - Description: Allow HTTP access to ECS demo
+    - VPC: default VPC (la misma del cluster)
+    - Inbound rules
+      - Agregar:
 
-4. Crear Service (Directamente desde el cluster, sin ALB, solo Public IP)
+| Type	| Protocol	| Port |	Source |
+| --- | --- | --- | --- |
+| HTTP |	TCP	|80|	0.0.0.0/0|
+
+Outbound rules - Dejar por default:
+All traffic - 0.0.0.0/0
+
+Click en Create security group
+
+5. Crear Service (Directamente desde el cluster, sin ALB, solo Public IP)
 Entra al cluster recién creado.ECS → Clusters → entra a ecs-demo-cluster)
 Haz clic en:
 - Create service
@@ -146,13 +164,13 @@ Haz clic en:
 Create service y espera.
 
 
-5. Validar que el Task esté “RUNNING”
+6. Validar que el Task esté “RUNNING”
 - Entra al Service → pestaña Tasks
 - Abre el Task → verifica estado RUNNING
 Busca:
 - Public IP (o “Network” → Public IP)
 
-6. Obtener la URL
+7. Obtener la URL
 Entra al Service
 - Click en el Task
 Busca: Public IP
