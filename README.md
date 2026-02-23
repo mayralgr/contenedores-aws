@@ -185,3 +185,21 @@ Image URI - Del ECR creado
 - Image: ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/ecs-demo:1.0 # 
 Container port: 80
 Name: ecs-demo
+
+
+### Clean up
+
+### ECS
+En clusters, ver al cluster creado (ecs-demo-cluster) y selecciona en acciones, delete cluster.
+
+Confirma
+
+Para eliminar las task definitions, primero entra a las revisiones, dales deregister
+
+
+### SG
+- Elimina el security group creado tambien
+
+### ECR
+1. Ve a ecr -> repositorio y elimina las imagenes
+2. Una vez eliminadas, selecciona el repositorio en ecr -> repositorios -> delete
